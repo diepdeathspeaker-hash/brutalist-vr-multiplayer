@@ -1,0 +1,12 @@
+# Render.com blueprint: one Node service that serves the game (dist/) AND the multiplayer WebSocket (/ws) over HTTPS/WSS.
+services:
+  - type: web
+    name: brutalistick-vr
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22

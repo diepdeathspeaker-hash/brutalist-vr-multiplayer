@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Brutalistick WebXR</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:system-ui,sans-serif;color:#eee}
+  #menu{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(#2a1410,#0b0707);z-index:5;text-align:center;padding:20px}
+  h1{margin:0;font-size:clamp(28px,6vw,64px);letter-spacing:.08em;color:#c0392b;text-shadow:0 0 18px #5a0508}
+  p{max-width:620px;opacity:.8;line-height:1.5;margin:0}
+  button,.vrbtn{font:600 18px system-ui;padding:14px 28px;border:2px solid #c0392b;background:#1a0f0d;color:#fff;border-radius:6px;cursor:pointer}
+  button:disabled{opacity:.4;cursor:wait}
+  #keys{font-size:13px;opacity:.65}
+  #vrslot{min-height:56px;position:relative}
+  #vrslot button{position:static!important;transform:none!important;width:auto!important;padding:14px 28px!important;font:600 18px system-ui!important;border:2px solid #c0392b!important;background:#1a0f0d!important;color:#fff!important;border-radius:6px!important}
+  #hud{position:fixed;left:10px;bottom:10px;font-size:12px;opacity:.7;z-index:3;pointer-events:none;white-space:pre}
+  #loading{width:min(560px,90vw)}#stage{margin-bottom:8px}
+  #barwrap{height:10px;background:#2c1a17;border-radius:5px;overflow:hidden}#bar{height:100%;width:0;background:#c0392b;transition:width .15s}
+  #pct{font-size:12px;opacity:.7;margin-top:4px}
+  #log{text-align:left;white-space:pre-wrap;max-height:220px;overflow:auto;background:#150c0b;border:1px solid #5a0508;padding:10px;font-size:12px;color:#f0b4ad}
+  #ready{display:flex;flex-direction:column;align-items:center;gap:14px}
+</style>
+</head>
+<body>
+<div id="menu">
+  <h1>BRUTALISTICK&nbsp;WEBXR</h1>
+  <p>Medieval physics-combat sandbox. Standalone WebXR for Meta Quest browser. Fictional cartoon violence: blood, dismemberment.</p>
+  <div id="loading">
+    <div id="stage">Starting…</div>
+    <div id="barwrap"><div id="bar"></div></div><div id="pct">0%</div>
+    <pre id="log" style="display:none"></pre>
+    <button id="retry" style="display:none">Retry</button>
+  </div>
+  <div id="ready" style="display:none">
+    <button id="startDesktop">Play on desktop</button>
+    <div id="vrslot"></div>
+    <div id="keys">Desktop: WASD move · mouse look · hold LMB + move mouse = swing · E grab/release · F fire · R reload · T eject mag · Q press terminal button (aim at it) · G sword · V dagger · M mace · N NPC · C crate · Del reset · Esc menu</div>
+  </div>
+</div>
+<div id="hud"></div>
+<!-- No-build mode: when this folder is served as plain static files (no Vite), bare imports resolve through these CDN URLs.
+     When built with Vite the bundle contains everything and this map is simply unused. -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+  "@dimforge/rapier3d-compat": "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.14.0/rapier.es.js"
+} }
+</script>
+<script>
+  // Start-up watchdog: if the game script never begins running, say exactly why instead of just hanging.
+  window.__boot = 'none';
+  (function () {
+    function log(m) { var l = document.getElementById('log'); if (!l) return; l.style.display = 'block'; l.textContent += '\u2716 ' + m + '\n'; }
+    addEventListener('error', function (e) {
+      if (window.__boot !== 'none') return; var t = e.target;
+      log(t && t.src ? 'Failed to load script: ' + t.src : (e.message || 'script error') + (e.filename ? ' @ ' + e.filename + ':' + e.lineno : ''));
+    }, true);
+    addEventListener('unhandledrejection', function (e) { if (window.__boot === 'none') log('Promise rejection: ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason)); });
+    setTimeout(function () {
+      if (window.__boot !== 'none') return;
+      var st = document.getElementById('stage'); if (st) st.textContent = 'Failed to start';
+      var s = document.querySelector('script[type=module]'), src = s && s.src;
+      log('The game script has not started after 12 s (script: ' + src + ').');
+      if (location.protocol === 'file:') log('Opened from file:// - ES modules cannot load from disk. Use "npm run dev" or deploy to Vercel (https).');
+      if (src) fetch(src).then(function (r) { log('Fetching the script returned HTTP ' + r.status + ' (' + r.headers.get('content-type') + ').' + (r.status === 404 ? ' The file is missing: upload the whole project folder, keeping src/ and public/.' : '')); }).catch(function (e) { log('Could not fetch the script: ' + e.message + ' (offline, blocked by CSP/CDN, or wrong URL).'); });
+    }, 12000);
+  })();
+</script>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

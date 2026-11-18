@@ -1,0 +1,21 @@
+{
+  "name": "brutalistick-webxr",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "test": "node test/slicer.test.mjs && node test/geometry.test.mjs && node test/economy.test.mjs && node test/static.test.mjs && node test/net.test.mjs && node test/server.test.mjs && sh test/smoke/run.sh",
+    "server": "node server/index.js",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.14.0",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}
